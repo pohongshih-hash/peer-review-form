@@ -36,6 +36,8 @@ jobs:
 
       - name: Build project
         run: npm run build
+        env:
+          VITE_GAS_WEBHOOK: ${{ vars.VITE_GAS_WEBHOOK }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
