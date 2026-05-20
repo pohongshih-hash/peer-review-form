@@ -224,6 +224,43 @@ export default function SummaryCard({ state }: SummaryCardProps) {
           <div className="p-4 text-sm font-medium bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-center">
             {errorMessage}
           </div>
+          {errorMessage.includes('缺') && (
+            <div className="p-6 bg-slate-50 border border-slate-200 rounded-xl text-left text-sm text-slate-700 shadow-sm">
+              <h4 className="font-bold text-slate-900 mb-4 whitespace-nowrap flex items-center gap-2">
+                <PenTool className="w-5 h-5 text-indigo-600" /> 如何設定 Google Apps Script
+              </h4>
+              <ol className="list-decimal list-inside space-y-3 mb-6 leading-relaxed marker:font-bold marker:text-slate-400">
+                <li>前往 <a href="https://script.google.com/" target="_blank" rel="noreferrer" className="text-indigo-600 font-semibold hover:underline">Google Apps Script</a> 並登入。</li>
+                <li>點選左上角「新專案」，將下方這段程式碼貼上，取代編輯區的預設內容。</li>
+                <li>點擊右上角「部署」 &gt; 「新增部署作業」。</li>
+                <li>左側齒輪選取「網頁應用程式」(Web app)。</li>
+                <li><strong className="text-slate-900">重要設定</strong>：執行身分選「我」，存取權限選「所有人」(Anyone)，點擊部署並完成授權。</li>
+                <li>獲得一段「網頁應用程式網址」，複製它。</li>
+                <li>來到 GitHub 儲存庫的 <strong>Settings &gt; Secrets and variables &gt; Actions</strong> 中的 <strong>Variables</strong> 頁籤。</li>
+                <li>點擊「New repository variable」，名稱填 <code>VITE_GAS_WEBHOOK</code>，內容貼上您剛剛複製的網址並新增。</li>
+                <li>到 Actions 點選「Deploy to GitHub Pages」重新執行 (Run workflow)，結束後即可正常寫入！</li>
+              </ol>
+              <div className="relative">
+                <pre className="bg-slate-900 text-slate-50 p-4 rounded-xl overflow-x-auto text-xs font-mono leading-relaxed shadow-inner">
+                  <code>{`function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var sheet = SpreadsheetApp.openById(data.sheetId).getSheetByName(data.sheetName);
+    if (!sheet) return ContentService.createTextOutput(JSON.stringify({ success: false, error: '找不到工作表' })).setMimeType(ContentService.MimeType.JSON);
+    
+    var lastRow = Math.max(sheet.getLastRow(), 1);
+    sheet.getRange(lastRow + 1, 1, data.values.length, data.values[0].length).setValues(data.values);
+    return ContentService.createTextOutput(JSON.stringify({ success: true }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ success: false, error: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}`}</code>
+                </pre>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
